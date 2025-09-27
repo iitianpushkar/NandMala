@@ -12,8 +12,9 @@ contract PoolFactory {
     address public immutable ytImplementation;
 
     address[] public allPools;
+    mapping(address pool => uint256 maturityDate) public poolMaturity;
 
-    event PoolCreated(address pool, address pt, address yt);
+    event PoolCreated(address pool, address pt, address yt, uint256 maturityDate);
 
     constructor(address _poolImpl, address _ptImpl, address _ytImpl) {
         poolImplementation = _poolImpl;
@@ -21,7 +22,7 @@ contract PoolFactory {
         ytImplementation = _ytImpl;
     }
 
-    function createPool() external returns (address pool, address pt, address yt) {
+    function createPool(uint256 maturityDate) external returns (address pool, address pt, address yt) {
         // 1️⃣ Deploy PT + YT clones
         pt = Clones.clone(ptImplementation);
         PTYT(pt).initialize("Principal Token", "PT");
@@ -38,8 +39,9 @@ contract PoolFactory {
         PTYT(yt).transferOwnership(pool);
 
         allPools.push(pool);
+        poolMaturity[pool] = maturityDate;
 
-        emit PoolCreated(pool, pt, yt);
+        emit PoolCreated(pool, pt, yt, maturityDate);
     }
 
     function allPoolsLength() external view returns (uint256) {
