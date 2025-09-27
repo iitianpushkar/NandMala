@@ -8,7 +8,7 @@ import { OAppCore } from "@layerzerolabs/oapp-evm/contracts/oapp/OAppCore.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import "./Vault.sol";
 
-contract OApp is OAppSender, OAppReceiver, Ownable {
+contract OApp is OAppSender, OAppReceiver{
     struct messageFromHederaToAvalanche {
         string message;   // claim or withdraw
         uint256 amount;
