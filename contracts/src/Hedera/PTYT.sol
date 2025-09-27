@@ -2,39 +2,26 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract PTYT {
-    string public name;
-    string public symbol;
-    uint8 public decimals = 18;
-    mapping(address => uint256) public balanceOf;
-    uint256 public totalSupply;
+contract PTYT is ERC20, Ownable {
 
-    address public minter;
-    bool private initialized;
+    constructor(string memory _name, string memory _symbol)
+        ERC20(_name, _symbol) 
+        Ownable(msg.sender)
+    {}
 
-    function initialize(string memory _name, string memory _symbol) external {
-        require(!initialized, "Already initialized");
-        initialized = true;
-        name = _name;
-        symbol = _symbol;
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
     }
 
-    function setMinter(address _minter) external {
-        require(minter == address(0), "Minter already set");
-        minter = _minter;
+    function burn(address from, uint256 amount) external onlyOwner {
+        _burn(from, amount);
     }
 
-    function mint(address to, uint256 amount) external {
-        require(msg.sender == minter, "Not minter");
-        balanceOf[to] += amount;
-        totalSupply += amount;
+    function decimals() public view override virtual returns (uint8) {
+        return 6;
     }
 
-    function burn(address from, uint256 amount) external {
-        require(msg.sender == minter, "Not minter");
-        require(balanceOf[from] >= amount, "Insufficient balance");
-        balanceOf[from] -= amount;
-        totalSupply -= amount;
-    }
+
 }

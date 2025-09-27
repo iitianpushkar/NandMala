@@ -1,18 +1,25 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.28;
 
-contract vault {
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+contract Vault {
+    using SafeERC20 for IERC20;
 
     address public owner;
-    uint256 public balance;
+    IERC20 public immutable token; // aAvaUSDC
+    address public router;
+
+    uint256 public balance; // tracked token balance
 
     event Deposit(address indexed sender, uint256 amount);
     event Withdraw(address indexed recipient, uint256 amount);
 
-    constructor() {
+    constructor(address _token, address _router) {
         owner = msg.sender;
-        balance = 0;
+        token = IERC20(_token);
+        router = _router;
     }
 
     modifier onlyOwner() {
@@ -20,16 +27,24 @@ contract vault {
         _;
     }
 
-    function deposit() external payable {
-        require(msg.value > 0, "Deposit amount must be greater than zero");
-        balance += msg.value;
-        emit Deposit(msg.sender, msg.value);
+    modifier onlyRouter() {
+        require(msg.sender == router, "Not the router");
+        _;
     }
 
-    function withdraw(uint256 amount) external onlyOwner {
+    /// @notice Deposit aAvaUSDC into the vault
+    function deposit(uint256 amount) external {
+        require(amount > 0, "Deposit amount must be greater than zero");
+        token.safeTransferFrom(msg.sender, address(this), amount);
+        balance += amount;
+        emit Deposit(msg.sender, amount);
+    }
+
+    /// @notice Withdraw tokens to the owner (triggered by router)
+    function withdraw(uint256 amount) external onlyRouter {
         require(amount <= balance, "Insufficient balance in vault");
         balance -= amount;
-        payable(owner).transfer(amount);
+        token.safeTransfer(owner, amount);
         emit Withdraw(owner, amount);
     }
 }
