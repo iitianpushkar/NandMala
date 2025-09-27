@@ -6,7 +6,7 @@ import { OAppSender, MessagingFee } from "@layerzerolabs/oapp-evm/contracts/oapp
 import { OptionsBuilder } from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OptionsBuilder.sol";
 import { OAppCore } from "@layerzerolabs/oapp-evm/contracts/oapp/OAppCore.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import "./Vault.sol";
+import "./vault.sol";
 
 contract OApp is OAppSender, OAppReceiver{
     struct messageFromHederaToAvalanche {
